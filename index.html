@@ -5,102 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Interactive Spinning Wheel</title>
   <style>
-    :root{
-      --size: min(92vw, 640px);
-    }
+    :root { --size: min(92vw, 640px); }
     body{
-      margin:0;
-      font-family: system-ui, Arial, sans-serif;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      min-height:100vh;
-      background:#faf7f2;
+      margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+      font-family: system-ui, Arial, sans-serif; background:#faf7f2;
     }
     .panel{
       width: calc(var(--size) + 40px);
-      max-width: 720px;
-      padding: 18px 18px 22px;
-      border-radius: 16px;
-      background: #ffffff;
+      padding:18px; border-radius:16px; background:#fff;
       box-shadow: 0 10px 30px rgba(0,0,0,.08);
     }
-    .controls{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
+    .controls{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
     button{
-      padding:10px 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(0,0,0,.12);
-      background: #fff;
-      cursor:pointer;
-      font-weight:600;
+      padding:10px 14px; border-radius:12px; border:1px solid rgba(0,0,0,.12);
+      background:#fff; cursor:pointer; font-weight:700;
     }
     button:hover{ background:#f5f5f5; }
-    .hint{
-      font-size: 13px;
-      color: #555;
-    }
+    .hint{ font-size:13px; color:#555; }
 
-    /* Square stage prevents “egg”/off-center look */
     .stage{
       width: var(--size);
       aspect-ratio: 1 / 1;
-      margin: 0 auto;
-      position: relative;
-      overflow: visible;
-      user-select: none;
-      touch-action: manipulation;
+      position:relative;
+      margin:0 auto;
+      user-select:none;
     }
-
-    /* This is what rotates */
     .rotator{
-      position:absolute;
-      inset:0;
+      position:absolute; inset:0;
       transform-origin: 50% 50%;
       transform: rotate(0deg);
       will-change: transform;
     }
-
-    /* Wheel image fills square */
     .wheel-img{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
+      position:absolute; inset:0;
+      width:100%; height:100%;
       object-fit: contain;
       display:block;
-      pointer-events: none; /* clicks go to the overlay */
+      pointer-events:none;
     }
+    svg{ position:absolute; inset:0; width:100%; height:100%; }
 
-    /* Click overlay */
-    svg{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-    }
+    /* Make hotspots clickable in SVG */
+    .hotspot { cursor: pointer; }
+    .hotspot path, .hotspot circle { fill: rgba(0,0,0,0); pointer-events: all; }
 
-    /* Make hotspots visible when keyboard-focused (accessibility) */
-    .hotspot:focus-visible path,
-    .hotspot:focus-visible circle{
-      outline: none;
-      stroke: rgba(0,0,0,.35);
-      stroke-width: 6;
-      fill: rgba(255,255,255,.08);
-    }
-
-    /* Hotspots are invisible but clickable */
-    .hotspot path,
-    .hotspot circle{
-      fill: rgba(0,0,0,0);
-      stroke: rgba(0,0,0,0);
-    }
+    /* If you want to SEE the clickable areas temporarily, remove the /* ... */ below */
+    /* .hotspot path, .hotspot circle { fill: rgba(255,0,0,.18); } */
   </style>
 </head>
 <body>
@@ -108,170 +58,96 @@
     <div class="controls">
       <button id="spinBtn" type="button">Spin</button>
       <button id="resetBtn" type="button">Reset</button>
-      <div class="hint">Tip: You can also click the wheel to spin. Slices + rims + center are clickable.</div>
+      <div class="hint">If spin still doesn’t work, open DevTools Console (F12) and copy the red error.</div>
     </div>
 
-    <div class="stage" aria-label="Interactive spinning wheel">
+    <div class="stage" id="stage">
       <div class="rotator" id="rotator">
+        <img class="wheel-img" src="wheel.jpg" alt="Wheel" />
 
-        <!-- Your wheel image -->
-        <img class="wheel-img" src="wheel.jpg" alt="Literacy for Multilingual Learners wheel" />
-
-        <!-- Transparent clickable overlay (SVG) -->
-        <!-- ViewBox is a 1000x1000 square so everything scales perfectly -->
-        <svg viewBox="0 0 1000 1000" aria-hidden="false">
-          <!--
-            Geometry (tuned for your image):
-            Center = (500,500)
-            Outer radius (r2) ~ 480
-            Inner radius (r1) ~ 260
-            Rim band radius ~ 465 with width ~ 40
-            Center circle radius ~ 170
-          -->
-
-          <!-- ====== RIM LINKS (top + bottom) ====== -->
-          <!-- TOP RIM (roughly 210° to 330° across the top arc) -->
+        <svg viewBox="0 0 1000 1000" aria-label="Clickable wheel overlay">
+          <!-- Top rim -->
           <a class="hotspot" id="linkTopRim" href="#" target="_blank" rel="noopener" aria-label="Top rim link">
-            <!-- annular sector -->
-            <path d="
-              M 250 189
-              A 465 465 0 0 1 750 189
-              L 725 226
-              A 420 420 0 0 0 275 226
-              Z
-            "></path>
+            <path d="M 250 189 A 465 465 0 0 1 750 189 L 725 226 A 420 420 0 0 0 275 226 Z"></path>
           </a>
 
-          <!-- BOTTOM RIM (roughly 30° to 150° across the bottom arc) -->
+          <!-- Bottom rim -->
           <a class="hotspot" id="linkBottomRim" href="#" target="_blank" rel="noopener" aria-label="Bottom rim link">
-            <path d="
-              M 750 811
-              A 465 465 0 0 1 250 811
-              L 275 774
-              A 420 420 0 0 0 725 774
-              Z
-            "></path>
+            <path d="M 750 811 A 465 465 0 0 1 250 811 L 275 774 A 420 420 0 0 0 725 774 Z"></path>
           </a>
 
-          <!-- ====== CENTER LINK ====== -->
+          <!-- Center -->
           <a class="hotspot" id="linkCenter" href="#" target="_blank" rel="noopener" aria-label="Center link">
             <circle cx="500" cy="500" r="170"></circle>
           </a>
 
-          <!-- ====== SLICE LINKS (8 slices) ====== -->
-          <!-- Each slice is an annular sector between r1=260 and r2=480 -->
-          <!-- Slice 1 (top) -->
-          <a class="hotspot" id="slice1" href="#" target="_blank" rel="noopener" aria-label="Slice 1 link">
-            <path d="
-              M 500 20
-              A 480 480 0 0 1 839 161
-              L 684 316
-              A 260 260 0 0 0 500 240
-              Z
-            "></path>
-          </a>
-
-          <!-- Slice 2 (upper right) -->
-          <a class="hotspot" id="slice2" href="#" target="_blank" rel="noopener" aria-label="Slice 2 link">
-            <path d="
-              M 839 161
-              A 480 480 0 0 1 980 500
-              L 760 500
-              A 260 260 0 0 0 684 316
-              Z
-            "></path>
-          </a>
-
-          <!-- Slice 3 (right) -->
-          <a class="hotspot" id="slice3" href="#" target="_blank" rel="noopener" aria-label="Slice 3 link">
-            <path d="
-              M 980 500
-              A 480 480 0 0 1 839 839
-              L 684 684
-              A 260 260 0 0 0 760 500
-              Z
-            "></path>
-          </a>
-
-          <!-- Slice 4 (lower right) -->
-          <a class="hotspot" id="slice4" href="#" target="_blank" rel="noopener" aria-label="Slice 4 link">
-            <path d="
-              M 839 839
-              A 480 480 0 0 1 500 980
-              L 500 760
-              A 260 260 0 0 0 684 684
-              Z
-            "></path>
-          </a>
-
-          <!-- Slice 5 (bottom) -->
-          <a class="hotspot" id="slice5" href="#" target="_blank" rel="noopener" aria-label="Slice 5 link">
-            <path d="
-              M 500 980
-              A 480 480 0 0 1 161 839
-              L 316 684
-              A 260 260 0 0 0 500 760
-              Z
-            "></path>
-          </a>
-
-          <!-- Slice 6 (lower left) -->
-          <a class="hotspot" id="slice6" href="#" target="_blank" rel="noopener" aria-label="Slice 6 link">
-            <path d="
-              M 161 839
-              A 480 480 0 0 1 20 500
-              L 240 500
-              A 260 260 0 0 0 316 684
-              Z
-            "></path>
-          </a>
-
-          <!-- Slice 7 (left) -->
-          <a class="hotspot" id="slice7" href="#" target="_blank" rel="noopener" aria-label="Slice 7 link">
-            <path d="
-              M 20 500
-              A 480 480 0 0 1 161 161
-              L 316 316
-              A 260 260 0 0 0 240 500
-              Z
-            "></path>
-          </a>
-
-          <!-- Slice 8 (upper left) -->
-          <a class="hotspot" id="slice8" href="#" target="_blank" rel="noopener" aria-label="Slice 8 link">
-            <path d="
-              M 161 161
-              A 480 480 0 0 1 500 20
-              L 500 240
-              A 260 260 0 0 0 316 316
-              Z
-            "></path>
-          </a>
+          <!-- 8 slices -->
+          <a class="hotspot" id="slice1" href="#" target="_blank" rel="noopener"><path d="M 500 20 A 480 480 0 0 1 839 161 L 684 316 A 260 260 0 0 0 500 240 Z"></path></a>
+          <a class="hotspot" id="slice2" href="#" target="_blank" rel="noopener"><path d="M 839 161 A 480 480 0 0 1 980 500 L 760 500 A 260 260 0 0 0 684 316 Z"></path></a>
+          <a class="hotspot" id="slice3" href="#" target="_blank" rel="noopener"><path d="M 980 500 A 480 480 0 0 1 839 839 L 684 684 A 260 260 0 0 0 760 500 Z"></path></a>
+          <a class="hotspot" id="slice4" href="#" target="_blank" rel="noopener"><path d="M 839 839 A 480 480 0 0 1 500 980 L 500 760 A 260 260 0 0 0 684 684 Z"></path></a>
+          <a class="hotspot" id="slice5" href="#" target="_blank" rel="noopener"><path d="M 500 980 A 480 480 0 0 1 161 839 L 316 684 A 260 260 0 0 0 500 760 Z"></path></a>
+          <a class="hotspot" id="slice6" href="#" target="_blank" rel="noopener"><path d="M 161 839 A 480 480 0 0 1 20 500 L 240 500 A 260 260 0 0 0 316 684 Z"></path></a>
+          <a class="hotspot" id="slice7" href="#" target="_blank" rel="noopener"><path d="M 20 500 A 480 480 0 0 1 161 161 L 316 316 A 260 260 0 0 0 240 500 Z"></path></a>
+          <a class="hotspot" id="slice8" href="#" target="_blank" rel="noopener"><path d="M 161 161 A 480 480 0 0 1 500 20 L 500 240 A 260 260 0 0 0 316 316 Z"></path></a>
         </svg>
-
       </div>
     </div>
   </div>
 
   <script>
-    // 1) PUT YOUR LINKS HERE
-    const LINKS = {
-      topRim: "https://sites.google.com/cherrycreekschools.org/ccsd-literacy-for-mls/oracy",
-      bottomRim: "https://sites.google.com/cherrycreekschools.org/ccsd-literacy-for-mls/researchlearn-more",
-      center: "https://example.com/home",
+    document.addEventListener("DOMContentLoaded", () => {
+      // Put your real links here (DON'T leave them as "#")
+      const LINKS = {
+        topRim: "https://example.com/top-rim",
+        bottomRim: "https://example.com/bottom-rim",
+        center: "https://example.com/home",
+        slice1: "https://example.com/1",
+        slice2: "https://example.com/2",
+        slice3: "https://example.com/3",
+        slice4: "https://example.com/4",
+        slice5: "https://example.com/5",
+        slice6: "https://example.com/6",
+        slice7: "https://example.com/7",
+        slice8: "https://example.com/8",
+      };
 
-      // Slices (update these 8)
-      slice1: "https://sites.google.com/cherrycreekschools.org/ccsd-literacy-for-mls/assessment",
-      slice2: "https://sites.google.com/cherrycreekschools.org/ccsd-literacy-for-mls/phonological-awareness",
-      slice3: "https://sites.google.com/cherrycreekschools.org/ccsd-literacy-for-mls/phonics-and-spelling",
-      slice4: "https://sites.google.com/cherrycreekschools.org/ccsd-literacy-for-mls/vocabulary-and-morphology",
-      slice5: "https://sites.google.com/cherrycreekschools.org/ccsd-literacy-for-mls/syntax",
-      slice6: "https://sites.google.com/cherrycreekschools.org/ccsd-literacy-for-mls/cross-linguistic-connections",
-      slice7: "https://sites.google.com/cherrycreekschools.org/ccsd-literacy-for-mls/text-comprehension-and-written-expression",
-      slice8: "https://sites.google.com/cherrycreekschools.org/ccsd-literacy-for-mls/culturally-and-linguistically-responsive"
-    };
+      // Wire links
+      document.getElementById("linkTopRim").href = LINKS.topRim;
+      document.getElementById("linkBottomRim").href = LINKS.bottomRim;
+      document.getElementById("linkCenter").href = LINKS.center;
+      for (let i = 1; i <= 8; i++) document.getElementById("slice"+i).href = LINKS["slice"+i];
 
-    // Apply the links to the hotspots
-    document.getElementById("linkTopRim").href = LINKS.topRim;
-    document.getElementById("linkBottomRim").href = LINKS.bottomRim;
-    document.getElem
+      const rotator = document.getElementById("rotator");
+      const spinBtn = document.getElementById("spinBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const stage = document.getElementById("stage");
+
+      let currentRotation = 0;
+
+      function spinWheel() {
+        const extraTurns = 6 * 360;
+        const randomFinish = Math.floor(Math.random() * 360);
+        currentRotation += extraTurns + randomFinish;
+        rotator.style.transition = "transform 2200ms cubic-bezier(0.12, 0.8, 0.1, 1)";
+        rotator.style.transform = `rotate(${currentRotation}deg)`;
+      }
+
+      function resetWheel() {
+        currentRotation = 0;
+        rotator.style.transition = "transform 250ms ease-out";
+        rotator.style.transform = "rotate(0deg)";
+      }
+
+      spinBtn.addEventListener("click", spinWheel);
+      resetBtn.addEventListener("click", resetWheel);
+
+      // Click empty area to spin; clicking a link navigates
+      stage.addEventListener("click", (e) => {
+        const link = e.target.closest("a");
+        if (!link) spinWheel();
+      });
+    });
+  </script>
+</body>
+</html>
